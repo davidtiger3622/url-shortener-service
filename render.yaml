@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: url-shortener-service
+    runtime: docker
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRE_MINUTES
+        value: 30
+      - key: BASE_URL
+        sync: false
+
+  - type: keyvalue
+    name: url-shortener-redis
+    plan: free
+    
