@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import datetime, timezone
-from fastapi.responses import RedirectResponse
-from app.models import Click
+
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models import Link, User
@@ -33,6 +31,7 @@ def create_link(
     db.refresh(new_link)
     return new_link
 
+
 @router.get("", response_model=PaginatedLinks)
 def list_links(
     page: int = 1,
@@ -50,19 +49,3 @@ def list_links(
         "page_size": page_size,
         "items": items,
     }
-
-
-@router.get("/{short_code}", include_in_schema=True)
-def redirect_to_original(short_code: str, db: Session = Depends(get_db)):
-    link = db.query(Link).filter(Link.short_code == short_code).first()
-    if not link or not link.is_active:
-        raise HTTPException(status_code=404, detail="Link not found")
-
-    if link.expires_at and link.expires_at < datetime.now(timezone.utc):
-        raise HTTPException(status_code=410, detail="Link has expired")
-
-    click = Click(link_id=link.id)
-    db.add(click)
-    db.commit()
-
-    return RedirectResponse(url=link.original_url)

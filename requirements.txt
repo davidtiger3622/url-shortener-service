@@ -16,3 +16,4 @@ httpx
 ruff
 slowapi
 email-validator
+pillow
